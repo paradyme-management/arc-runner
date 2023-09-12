@@ -1,0 +1,44 @@
+name: Docker Image Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    name: Build Image
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Configure environment
+      run: |
+        echo "TAG=$(date -u +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+
+    - name: Configure AWS credentials us-east-1
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Login to Amazon ECR us-east-1
+      id: us-east-1-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build, Tag and push the Docker image to us-east-1
+      env:
+        ECR_REGISTRY: ${{ steps.us-east-1-ecr.outputs.registry }}
+        REPOSITORY: arc-runner
+
+      run: |
+          echo "test"
+          echo ${TAG}
+          docker build . --build-arg TAG="${TAG}" --file Dockerfile --tag ${REPOSITORY}:${TAG} --tag ${REPOSITORY}:latest
+          docker tag ${REPOSITORY}:${TAG} $ECR_REGISTRY/${REPOSITORY}:${TAG} 
+          docker push $ECR_REGISTRY/$REPOSITORY:${TAG}
+          docker tag ${REPOSITORY}:latest $ECR_REGISTRY/${REPOSITORY}:latest 
+          docker push $ECR_REGISTRY/$REPOSITORY:latest
