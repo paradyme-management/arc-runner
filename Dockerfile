@@ -14,7 +14,19 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV RUNNER_MANUALLY_TRAP_SIG=1
 ENV ACTIONS_RUNNER_PRINT_LOG_TO_STDOUT=1
 
-RUN apt update -y && apt install curl unzip -y
+ENV JMETER_VERSION "5.5"
+ENV JMETER_HOME "/opt/apache/apache-jmeter-${JMETER_VERSION}"
+ENV JMETER_BIN "${JMETER_HOME}/bin"
+ENV PATH "$PATH:$JMETER_BIN"
+
+
+RUN apt update -y && apt install curl unzip openjdk-17-jre -y
+
+RUN curl -L https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz --output /tmp/apache-jmeter-${JMETER_VERSION}.tgz && \
+    tar -zxf /tmp/apache-jmeter-${JMETER_VERSION}.tgz && \
+    mkdir -p /opt/apache && \
+    mv apache-jmeter-${JMETER_VERSION} /opt/apache && \
+    rm /tmp/apache-jmeter-${JMETER_VERSION}.tgz && \
 
 RUN adduser --disabled-password --gecos "" --uid 1001 runner \
     && groupadd docker --gid 123 \
