@@ -26,7 +26,7 @@ RUN curl -L https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMET
     tar -zxf /tmp/apache-jmeter-${JMETER_VERSION}.tgz && \
     mkdir -p /opt/apache && \
     mv apache-jmeter-${JMETER_VERSION} /opt/apache && \
-    rm /tmp/apache-jmeter-${JMETER_VERSION}.tgz && \
+    rm /tmp/apache-jmeter-${JMETER_VERSION}.tgz 
 
 RUN adduser --disabled-password --gecos "" --uid 1001 runner \
     && groupadd docker --gid 123 \
